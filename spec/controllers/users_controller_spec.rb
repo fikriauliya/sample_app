@@ -19,6 +19,27 @@ describe UsersController do
       get 'new'
       response.should have_tag("title", /Sign Up/)
     end
+    
+    it "should have a name field" do
+      get :new
+      response.should have_tag("input[name=?][type=?]", "user[name]", "text")
+    end
+
+    it "should have an email field" do
+      get :new
+      response.should have_tag("input[name=?][type=?]", "user[email]", "text")
+    end
+    
+    it "should have a password field" do
+      get :new
+      response.should have_tag("input[name=?][type=?]", "user[password]", "password")
+    end
+    
+    it "should have a password confirmation field" do
+      get :new
+      response.should have_tag("input[name=?][type=?]", "user[password_confirmation]", "password")
+    end
+    
   end
   
   describe "GET 'show'" do
@@ -52,7 +73,7 @@ describe UsersController do
     describe "failure" do
       before(:each) do
         @attr = {:name => "", :email => "", 
-                :password => "", :password_confirmation => ""}
+          :password => "", :password_confirmation => ""}
         @user = Factory.build(:user, @attr)
         User.stub!(:new).and_return(@user)
         @user.should_receive(:save).and_return(false)
@@ -67,6 +88,18 @@ describe UsersController do
         post :create, :user => @attr
         response.should render_template('new')
       end       
+      
+      it "should set the password and password confirmation field blank" do
+        @attr = {:name => "", :email => "", 
+          :password => "foobar", :password_confirmation => "foobar"}
+        @user = Factory.build(:user, @attr)
+        #User.stub!(:new).and_return(@user)
+        #@user.should_receive(:save).and_return(false)
+        
+        post :create, :user => @attr
+        response.should have_tag("input[name=?][type=?][value=?]", "user[password]", "password", "")
+        response.should have_tag("input[name=?][type=?][value=?]", "user[password_confirmation]", 'password', "")
+      end
     end
     
     describe "success" do
@@ -87,6 +120,13 @@ describe UsersController do
         post :create, :user => @attr
         flash[:success].should =~ /welcome to sample app/i
       end
+      
+      it "should sign the user in" do
+        post :create, :user => @attr
+        controller.should be_signed_in
+      end
     end
+    
+    
   end
 end

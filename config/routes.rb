@@ -38,6 +38,10 @@ ActionController::Routing::Routes.draw do |map|
   map.signup '/signup', :controller => "users", :action => "new"
   map.root :controller => "pages", :action => "home"
   
+  map.resources :sessions, :only => [:new, :create, :destroy]
+
+  map.signin  '/signin',  :controller => 'sessions', :action => 'new'
+  map.signout '/signout', :controller => 'sessions', :action => 'destroy'  
   # See how all your routes lay out with "rake routes"
 
   # Install the default routes as the lowest priority.
